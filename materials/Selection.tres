@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://de45o7ljjiao2"]
+
+[resource]
+resource_name = "Blue"
+cull_mode = 2
+roughness = 0.5
+emission_enabled = true
+emission = Color(1, 1, 1, 1)

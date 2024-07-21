@@ -1,0 +1,113 @@
+[gd_scene load_steps=5 format=3 uid="uid://bopgy31tokg3b"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_nfg4n"]
+[ext_resource type="PackedScene" uid="uid://brlhq07vv2njf" path="res://prism.tscn" id="2_y254o"]
+[ext_resource type="Script" path="res://CameraPivot.gd" id="3_wmej8"]
+
+[sub_resource type="Environment" id="Environment_pre2o"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_nfg4n")
+prism_scene = ExtResource("2_y254o")
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[node name="SnakeObject" type="Node3D" parent="Node3D"]
+unique_name_in_owner = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Node3D"]
+transform = Transform3D(0.612372, -0.707107, -0.353553, 0.5, -2.98023e-08, 0.866025, -0.612372, -0.707107, 0.353553, 0, 10, 0)
+
+[node name="CameraPivot" type="Node3D" parent="Node3D"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 0.876349, 0.481677, 0, -0.481677, 0.876349, 0, 0, 0)
+script = ExtResource("3_wmej8")
+
+[node name="Camera3D" type="Camera3D" parent="Node3D/CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+environment = SubResource("Environment_pre2o")
+
+[node name="GUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="NewDesign" type="Button" parent="GUI/HBoxContainer"]
+layout_mode = 2
+text = "New"
+
+[node name="ExportDesign" type="Button" parent="GUI/HBoxContainer"]
+layout_mode = 2
+text = "Export"
+
+[node name="NewDesignPopup" type="Popup" parent="GUI"]
+unique_name_in_owner = true
+initial_position = 1
+size = Vector2i(400, 200)
+
+[node name="Control" type="Control" parent="GUI/NewDesignPopup"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="GUI/NewDesignPopup/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/NewDesignPopup/Control/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -165.5
+offset_top = -46.5
+offset_right = 165.5
+offset_bottom = 46.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI/NewDesignPopup/Control/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GUI/NewDesignPopup/Control/Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Piece amount (12-96):"
+
+[node name="SpinBox" type="SpinBox" parent="GUI/NewDesignPopup/Control/Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+min_value = 12.0
+max_value = 96.0
+step = 12.0
+value = 24.0
+rounded = true
+alignment = 1
+
+[node name="Label" type="Label" parent="GUI/NewDesignPopup/Control/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Note: This will replace your current design!"
+
+[node name="CreateNewDesign" type="Button" parent="GUI/NewDesignPopup/Control/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Create New"
+
+[connection signal="pressed" from="GUI/HBoxContainer/NewDesign" to="." method="_on_new_design_pressed"]
+[connection signal="pressed" from="GUI/NewDesignPopup/Control/Panel/VBoxContainer/CreateNewDesign" to="." method="_on_create_new_design_pressed"]
