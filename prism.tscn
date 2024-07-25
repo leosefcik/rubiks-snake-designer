@@ -1,55 +1,45 @@
-[gd_scene load_steps=6 format=3 uid="uid://brlhq07vv2njf"]
+[gd_scene load_steps=4 format=2]
 
-[ext_resource type="Script" path="res://prism.gd" id="1_7wo1w"]
-[ext_resource type="ArrayMesh" uid="uid://lmiplrksvh4o" path="res://models/prism.res" id="1_ntv36"]
-[ext_resource type="Material" uid="uid://cuckqlk5ylhe1" path="res://materials/Red.tres" id="2_fapp7"]
-[ext_resource type="Material" uid="uid://c7wf2pubt6btg" path="res://materials/Green.tres" id="3_8otcx"]
-[ext_resource type="ArrayMesh" uid="uid://bpol8kmkwwo6" path="res://models/half_selection.res" id="4_q5paf"]
+[ext_resource path="res://Prism.gd" type="Script" id=1]
+[ext_resource path="res://models/prism.obj" type="ArrayMesh" id=2]
+[ext_resource path="res://models/half_selection.obj" type="ArrayMesh" id=3]
 
-[node name="Prism" type="Node3D"]
-script = ExtResource("1_7wo1w")
+[node name="Prism" type="Spatial"]
+script = ExtResource( 1 )
 
-[node name="PrismMesh" type="MeshInstance3D" parent="."]
-mesh = ExtResource("1_ntv36")
+[node name="PrismMesh" type="MeshInstance" parent="."]
+mesh = ExtResource( 2 )
 
-[node name="OriginL" type="Node3D" parent="."]
-transform = Transform3D(0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, -0.25, 0.25, 0)
+[node name="OriginL" type="Position3D" parent="."]
+transform = Transform( 0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, -0.25, 0.25, 0 )
 
-[node name="IndicatorL" type="CSGSphere3D" parent="OriginL"]
-radius = 0.1
-material = ExtResource("2_fapp7")
+[node name="OriginR" type="Position3D" parent="."]
+transform = Transform( 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, 0.25, 0.25, 0 )
 
-[node name="OriginR" type="Node3D" parent="."]
-transform = Transform3D(0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, 0.25, 0.25, 0)
+[node name="CollisionL" type="Area" parent="."]
 
-[node name="IndicatorR" type="CSGSphere3D" parent="OriginR"]
-radius = 0.1
-material = ExtResource("3_8otcx")
-
-[node name="CollisionL" type="Area3D" parent="."]
-
-[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="CollisionL"]
+[node name="CollisionPolygon" type="CollisionPolygon" parent="CollisionL"]
 depth = 0.707
-polygon = PackedVector2Array(0, 0, -0.5, 0, 0, 0.5)
+polygon = PoolVector2Array( 0, 0, -0.5, 0, 0, 0.5 )
 
-[node name="CollisionR" type="Area3D" parent="."]
+[node name="CollisionR" type="Area" parent="."]
 
-[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="CollisionR"]
+[node name="CollisionPolygon" type="CollisionPolygon" parent="CollisionR"]
 depth = 0.707
-polygon = PackedVector2Array(0, 0, 0.5, 0, 0, 0.5)
+polygon = PoolVector2Array( 0, 0, 0.5, 0, 0, 0.5 )
 
-[node name="SelectionL" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+[node name="SelectionL" type="MeshInstance" parent="."]
+transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
 visible = false
-mesh = ExtResource("4_q5paf")
+mesh = ExtResource( 3 )
 
-[node name="SelectionR" type="MeshInstance3D" parent="."]
+[node name="SelectionR" type="MeshInstance" parent="."]
 visible = false
-mesh = ExtResource("4_q5paf")
+mesh = ExtResource( 3 )
 
-[connection signal="input_event" from="CollisionL" to="." method="_on_collision_l_input_event"]
-[connection signal="mouse_entered" from="CollisionL" to="." method="_on_collision_l_mouse_entered"]
-[connection signal="mouse_exited" from="CollisionL" to="." method="_on_collision_l_mouse_exited"]
-[connection signal="input_event" from="CollisionR" to="." method="_on_collision_r_input_event"]
-[connection signal="mouse_entered" from="CollisionR" to="." method="_on_collision_r_mouse_entered"]
-[connection signal="mouse_exited" from="CollisionR" to="." method="_on_collision_r_mouse_exited"]
+[connection signal="input_event" from="CollisionL" to="." method="_on_CollisionL_input_event"]
+[connection signal="mouse_entered" from="CollisionL" to="." method="_on_CollisionL_mouse_entered"]
+[connection signal="mouse_exited" from="CollisionL" to="." method="_on_CollisionL_mouse_exited"]
+[connection signal="input_event" from="CollisionR" to="." method="_on_CollisionR_input_event"]
+[connection signal="mouse_entered" from="CollisionR" to="." method="_on_CollisionR_mouse_entered"]
+[connection signal="mouse_exited" from="CollisionR" to="." method="_on_CollisionR_mouse_exited"]
