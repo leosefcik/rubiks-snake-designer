@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://Prism.gd" type="Script" id=1]
+[ext_resource path="res://prism.gd" type="Script" id=1]
 [ext_resource path="res://models/prism.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://models/half_selection.obj" type="ArrayMesh" id=3]
 

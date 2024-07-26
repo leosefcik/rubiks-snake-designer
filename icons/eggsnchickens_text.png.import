@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/undo.svg-47430fb6ab13d105e3a8917afe38d46b.stex"
+path="res://.import/eggsnchickens_text.png-390a1be0e2447b46300fe220f6057deb.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icons/undo.svg"
-dest_files=[ "res://.import/undo.svg-47430fb6ab13d105e3a8917afe38d46b.stex" ]
+source_file="res://icons/eggsnchickens_text.png"
+dest_files=[ "res://.import/eggsnchickens_text.png-390a1be0e2447b46300fe220f6057deb.stex" ]
 
 [params]
 
@@ -32,4 +32,4 @@ process/normal_map_invert_y=false
 stream=false
 size_limit=0
 detect_3d=true
-svg/scale=24.0
+svg/scale=1.0

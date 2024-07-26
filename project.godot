@@ -8,14 +8,29 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node",
+"class": "Tools",
+"language": "GDScript",
+"path": "res://tools.gd"
+} ]
+_global_script_class_icons={
+"Tools": ""
+}
+
 [application]
 
 config/name="Rubik's Snake Designer"
-run/main_scene="res://Main.tscn"
+config/description="3D virtual Rubik's Snake/Twist simulator with customization and more (made in Godot) "
+run/main_scene="res://main.tscn"
+boot_splash/image="res://icons/eggnchickens_splash.png"
+boot_splash/bg_color=Color( 0.156863, 0.172549, 0.203922, 1 )
 config/icon="res://icons/barry.png"
 
 [display]
 
+window/size/width=600
+window/size/test_width=1024
 window/stretch/mode="2d"
 window/stretch/aspect="expand"
 
@@ -34,12 +49,6 @@ cam_rotate={
 "deadzone": 0.5,
 "events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":3,"pressed":false,"doubleclick":false,"script":null)
 , Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":2,"pressed":false,"doubleclick":false,"script":null)
- ]
-}
-piece_click={
-"deadzone": 0.5,
-"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":1,"pressed":false,"doubleclick":false,"script":null)
-, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":32,"unicode":0,"echo":false,"script":null)
  ]
 }
 zoom_in={

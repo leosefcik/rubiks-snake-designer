@@ -9,7 +9,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	$CamGimbalX/Camera3D.translation.z = lerp($CamGimbalX/Camera3D.translation.z, zoom_level, delta*20)
+	$CamGimbalX/Camera3D.translation.z = lerp($CamGimbalX/Camera3D.translation.z, zoom_level, Tools.damp(20, delta))
 
 
 func _unhandled_input(event):
