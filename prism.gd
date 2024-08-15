@@ -1,6 +1,8 @@
 extends Spatial
 
 var index: int
+var last_tapped: int
+var is_doubled := false
 
 signal prismClicked(index, side, rotation_direction)
 
