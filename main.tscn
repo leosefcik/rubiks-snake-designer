@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://main.gd" type="Script" id=1]
 [ext_resource path="res://camera_controls.gd" type="Script" id=2]
@@ -19,6 +19,10 @@
 [ext_resource path="res://sounds/success.wav" type="AudioStream" id=17]
 [ext_resource path="res://test_env.tres" type="Environment" id=18]
 [ext_resource path="res://default_env.tres" type="Environment" id=19]
+[ext_resource path="res://icons/arrow-curved-left.svg" type="Texture" id=20]
+[ext_resource path="res://icons/rotate-axis-y2.svg" type="Texture" id=21]
+[ext_resource path="res://icons/arrow-curved-right.svg" type="Texture" id=22]
+[ext_resource path="res://icons/rotate-axis-y.svg" type="Texture" id=23]
 
 [sub_resource type="Theme" id=2]
 default_font = ExtResource( 9 )
@@ -791,7 +795,8 @@ size_flags_horizontal = 3
 text = "Default Dark"
 align = 1
 
-[node name="ViewportContainer" type="ViewportContainer" parent="GUI"]
+[node name="DELETE" type="ViewportContainer" parent="GUI"]
+visible = false
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -800,19 +805,75 @@ margin_left = -50.0
 margin_top = -100.0
 margin_right = 50.0
 
-[node name="Viewport" type="Viewport" parent="GUI/ViewportContainer"]
+[node name="Viewport" type="Viewport" parent="GUI/DELETE"]
 size = Vector2( 100, 100 )
 world = SubResource( 3 )
 transparent_bg = true
 handle_input_locally = false
-render_target_update_mode = 3
+render_target_update_mode = 0
 
-[node name="CSGBox" type="CSGBox" parent="GUI/ViewportContainer/Viewport"]
+[node name="CSGBox" type="CSGBox" parent="GUI/DELETE/Viewport"]
 
-[node name="Camera" type="Camera" parent="GUI/ViewportContainer/Viewport"]
+[node name="Camera" type="Camera" parent="GUI/DELETE/Viewport"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6 )
 environment = ExtResource( 19 )
 projection = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -44.0
+margin_top = -88.0
+margin_right = 44.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI/VBoxContainer"]
+margin_right = 88.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RotoL" type="Button" parent="GUI/VBoxContainer/HBoxContainer"]
+margin_right = 42.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+icon = ExtResource( 20 )
+expand_icon = true
+
+[node name="RotoR" type="Button" parent="GUI/VBoxContainer/HBoxContainer"]
+margin_left = 46.0
+margin_right = 88.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+icon = ExtResource( 22 )
+expand_icon = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="GUI/VBoxContainer"]
+margin_top = 46.0
+margin_right = 88.0
+margin_bottom = 88.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RotoACW" type="Button" parent="GUI/VBoxContainer/HBoxContainer2"]
+margin_right = 42.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+icon = ExtResource( 21 )
+expand_icon = true
+
+[node name="RotoCW" type="Button" parent="GUI/VBoxContainer/HBoxContainer2"]
+margin_left = 46.0
+margin_right = 88.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+icon = ExtResource( 23 )
+expand_icon = true
 
 [node name="ClickAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
@@ -884,6 +945,10 @@ stream = ExtResource( 17 )
 [connection signal="pressed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/ResetDefaultSettingsButton" to="." method="_on_ResetDefaultSettingsButton_pressed"]
 [connection signal="pressed" from="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer/CloseThemesButton" to="." method="_on_CloseThemesButton_pressed"]
 [connection signal="item_selected" from="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer2/BackgroundOptions" to="." method="_on_OptionButton_item_selected"]
+[connection signal="pressed" from="GUI/VBoxContainer/HBoxContainer/RotoL" to="." method="_on_RotoL_pressed"]
+[connection signal="pressed" from="GUI/VBoxContainer/HBoxContainer/RotoR" to="." method="_on_RotoR_pressed"]
+[connection signal="pressed" from="GUI/VBoxContainer/HBoxContainer2/RotoACW" to="." method="_on_RotoACW_pressed"]
+[connection signal="pressed" from="GUI/VBoxContainer/HBoxContainer2/RotoCW" to="." method="_on_RotoCW_pressed"]
 [connection signal="timeout" from="UndoTimer" to="." method="_on_UndoTimer_timeout"]
 [connection signal="pressed" from="UnhideUiButton" to="." method="_on_UnhideUiButton_pressed"]
 [connection signal="timeout" from="UnhideUITimer" to="." method="_on_UnhideUITimer_timeout"]

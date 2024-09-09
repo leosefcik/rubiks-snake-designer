@@ -15,10 +15,13 @@ var rotary_point: Spatial
 var target_rotation: Basis
 var time := 0.0
 var rotation_queue := []
+var center_point_rot: Vector3 # For rotations of whole
+var rotary_node_rot: Spatial
+var time_rot := 0.0
 
 var CAMERA_ROOT: Spatial
 var cam_recenter := false
-var center_point: Vector3
+var center_point_cam: Vector3
 var time_cam = 0.0
 
 # Settings
@@ -181,14 +184,18 @@ func _process(delta):
 			else:
 				stunlock = 0
 	
+	# Snake entire rotation
+	elif stunlock == 2:
+		time_rot += delta
+	
 	# Camera re-center
 	if cam_recenter:
 		time_cam += delta
 		CAMERA_ROOT.rotation_degrees.y = lerp(CAMERA_ROOT.rotation_degrees.y, 0, Tools.damp(50, time_cam*delta))
 		CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x = lerp(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x, 0, Tools.damp(50, time_cam*delta))
-		CAMERA_ROOT.global_translation = lerp(CAMERA_ROOT.global_translation, center_point, Tools.damp(50, time_cam*delta))
+		CAMERA_ROOT.global_translation = lerp(CAMERA_ROOT.global_translation, center_point_cam, Tools.damp(50, time_cam*delta))
 		
-		if CAMERA_ROOT.global_translation.is_equal_approx(center_point) and round(CAMERA_ROOT.rotation_degrees.y) == 0 and round(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x) == 0:
+		if CAMERA_ROOT.global_translation.is_equal_approx(center_point_cam) and round(CAMERA_ROOT.rotation_degrees.y) == 0 and round(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x) == 0:
 			time_cam = 0.0
 			cam_recenter = false
 
@@ -370,12 +377,17 @@ func clamp0and3(x: int):
 
 func resetCam():
 	$WowowAudio.play()
-	center_point = Vector3(0,0,0)
-	for i in snake_prisms:
-		center_point += i.global_translation
-	center_point = center_point / snake_length
+	center_point_cam = findCenter()
 	CAMERA_ROOT.zoom_level = 8.0 * (snake_length/24.0)
 	cam_recenter = true
+
+
+func findCenter():
+	var x = Vector3(0, 0, 0)
+	for i in snake_prisms:
+		x += i.global_translation
+	x = x / snake_length
+	return x
 
 
 func _on_UndoTimer_timeout():
@@ -607,3 +619,23 @@ func themePresetPressed(theme_preset):
 	$CollisionAudio.play()
 	theme = preset_themes[theme_preset]
 	themeSet()
+
+
+func _on_RotoACW_pressed():
+	rotateEntireSnake(true, -1)
+
+func _on_RotoCW_pressed():
+	rotateEntireSnake(true, 1)
+
+func _on_RotoL_pressed():
+	rotateEntireSnake(false, -1)
+
+func _on_RotoR_pressed():
+	rotateEntireSnake(false, 1)
+
+func rotateEntireSnake(rotating_y, dir):
+	if stunlock != 0: return
+	stunlock = 2
+	center_point_rot = findCenter()
+	rotary_node_rot = Spatial.new()
+	rotary_node_rot.translation = center_point_rot
