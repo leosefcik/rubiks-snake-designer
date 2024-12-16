@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://main.gd" type="Script" id=1]
 [ext_resource path="res://camera_controls.gd" type="Script" id=2]
@@ -23,6 +23,16 @@
 [ext_resource path="res://icons/rotate-axis-y2.svg" type="Texture" id=21]
 [ext_resource path="res://icons/arrow-curved-right.svg" type="Texture" id=22]
 [ext_resource path="res://icons/rotate-axis-y.svg" type="Texture" id=23]
+[ext_resource path="res://materials/grid.png" type="Texture" id=24]
+
+[sub_resource type="PlaneMesh" id=4]
+size = Vector2( 1024, 1024 )
+
+[sub_resource type="SpatialMaterial" id=5]
+flags_transparent = true
+albedo_color = Color( 1, 1, 1, 0.392157 )
+albedo_texture = ExtResource( 24 )
+uv1_scale = Vector3( 1024, 1024, 1 )
 
 [sub_resource type="Theme" id=2]
 default_font = ExtResource( 9 )
@@ -44,6 +54,14 @@ script = ExtResource( 2 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10 )
 environment = ExtResource( 18 )
 current = true
+fov = 45.0
+far = 200.0
+
+[node name="GridPlane" type="MeshInstance" parent="World"]
+unique_name_in_owner = true
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
+mesh = SubResource( 4 )
+material/0 = SubResource( 5 )
 
 [node name="GUI" type="Control" parent="."]
 anchor_right = 1.0
@@ -608,9 +626,9 @@ unique_name_in_owner = true
 margin_left = 186.0
 margin_right = 260.0
 margin_bottom = 30.0
-min_value = 30.0
+min_value = 20.0
 max_value = 120.0
-value = 70.0
+value = 45.0
 rounded = true
 
 [node name="HBoxContainer6" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
@@ -837,6 +855,7 @@ size_flags_vertical = 3
 [node name="RotoL" type="Button" parent="GUI/VBoxContainer/HBoxContainer"]
 margin_right = 42.0
 margin_bottom = 42.0
+hint_tooltip = "Rotate left on Z axis (from HOME view)"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource( 20 )
@@ -846,6 +865,7 @@ expand_icon = true
 margin_left = 46.0
 margin_right = 88.0
 margin_bottom = 42.0
+hint_tooltip = "Rotate right on Z axis (from HOME view)"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource( 22 )
@@ -861,6 +881,7 @@ size_flags_vertical = 3
 [node name="RotoACW" type="Button" parent="GUI/VBoxContainer/HBoxContainer2"]
 margin_right = 42.0
 margin_bottom = 42.0
+hint_tooltip = "Rotate anticlockwise on Y axis"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource( 21 )
@@ -870,6 +891,7 @@ expand_icon = true
 margin_left = 46.0
 margin_right = 88.0
 margin_bottom = 42.0
+hint_tooltip = "Rotate clockwise on Y axis"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource( 23 )

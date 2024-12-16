@@ -1,7 +1,12 @@
 extends Node
 
+################### WARNING ###########
+############# TERRIBLE CODE BELOW ########
+####### !!!!!!!!##############
+
 # Snake-related
 var prism_scene := preload("res://prism.tscn")
+var debug_dot := preload("res://debug_dot.tscn")
 var snake_design: Array # Numbers design of the snake
 var snake_prisms: Array # Array with prism nodes
 var snake_length: int # Prism amount
@@ -9,7 +14,7 @@ var snake_object: Spatial # Node that contains all the prisms
 var actions_history: Array # For undo
 
 # Animation
-var stunlock := 0 # For animations, 0 = none, 1 = prism rotation
+var stunlock := 0 # For animations, 0 = none, 1 = prism rotation, 2 = whole rotation
 var target_prisms: Array
 var rotary_point: Spatial
 var target_rotation: Basis
@@ -17,12 +22,15 @@ var time := 0.0
 var rotation_queue := []
 var center_point_rot: Vector3 # For rotations of whole
 var rotary_node_rot: Spatial
+var target_rotation_rot: Basis
 var time_rot := 0.0
 
 var CAMERA_ROOT: Spatial
 var cam_recenter := false
 var center_point_cam: Vector3
 var time_cam = 0.0
+
+var roto45 = false #for Z axis rotation so it dont get twisted
 
 # Settings
 var gui_hidden := false
@@ -187,6 +195,23 @@ func _process(delta):
 	# Snake entire rotation
 	elif stunlock == 2:
 		time_rot += delta
+		var a = Quat(rotary_node_rot.transform.basis.get_rotation_quat())
+		var b = Quat(target_rotation_rot.get_rotation_quat())
+		var c = a.slerp(b, Tools.damp(spin_speed, (time_rot/8)*delta))
+		rotary_node_rot.transform.basis = Basis(c)
+		
+		if rotary_node_rot.transform.basis.is_equal_approx(target_rotation_rot):
+			rotary_node_rot.transform.basis = target_rotation_rot
+			
+			for i in snake_prisms:
+				var correct_position = i.global_transform
+				rotary_node_rot.remove_child(i)
+				snake_object.add_child(i)
+				i.global_transform = correct_position
+			
+			rotary_node_rot.queue_free()
+			time_rot = 0.0
+			stunlock = 0
 	
 	# Camera re-center
 	if cam_recenter:
@@ -198,7 +223,15 @@ func _process(delta):
 		if CAMERA_ROOT.global_translation.is_equal_approx(center_point_cam) and round(CAMERA_ROOT.rotation_degrees.y) == 0 and round(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x) == 0:
 			time_cam = 0.0
 			cam_recenter = false
+	
+	# Grid re-level
+	get_node("%GridPlane").global_translation.y = lerp(get_node("%GridPlane").global_translation.y, findLowestY()-1, Tools.damp(1, delta))
 
+func findLowestY():
+	var lowest_y := 9999.0
+	for i in snake_prisms:
+		if i.global_translation.y < lowest_y: lowest_y = i.global_translation.y
+	return(lowest_y)
 
 func spawnEmptyDesign(count: int):
 	spawnDesign(generateEmptyDesign(count))
@@ -378,7 +411,7 @@ func clamp0and3(x: int):
 func resetCam():
 	$WowowAudio.play()
 	center_point_cam = findCenter()
-	CAMERA_ROOT.zoom_level = 8.0 * (snake_length/24.0)
+	CAMERA_ROOT.zoom_level = 16.0 * (snake_length/24.0)
 	cam_recenter = true
 
 
@@ -580,7 +613,7 @@ func _on_ResetDefaultSettingsButton_pressed():
 	get_node("%RotationSpeedBox").value = 30
 	get_node("%InstantRotationCheck").pressed = false
 	get_node("%DarkenFirstPieceCheck").pressed = false
-	get_node("%FovSpinBox").value = 70
+	get_node("%FovSpinBox").value = 45
 	get_node("%SoundsCheck").pressed = true
 	_on_Sounds2Check_pressed()
 
@@ -635,7 +668,26 @@ func _on_RotoR_pressed():
 
 func rotateEntireSnake(rotating_y, dir):
 	if stunlock != 0: return
-	stunlock = 2
+	if roto45 and rotating_y:
+		$WowowAudio.play()
+		return
+	
 	center_point_rot = findCenter()
 	rotary_node_rot = Spatial.new()
 	rotary_node_rot.translation = center_point_rot
+	
+	if rotating_y:
+		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.y.normalized(), -PI/2*dir)
+	else:
+		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), -PI/4*dir)
+		roto45 = !roto45
+	
+	snake_object.add_child(rotary_node_rot)
+	for i in snake_prisms:
+		var correct_position = i.global_transform
+		snake_object.remove_child(i)
+		rotary_node_rot.add_child(i)
+		i.global_transform = correct_position
+	
+	stunlock = 2
+	$UndoAudio.play()

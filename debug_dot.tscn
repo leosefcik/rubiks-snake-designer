@@ -1,0 +1,4 @@
+[gd_scene format=2]
+
+[node name="debug_dot" type="CSGSphere"]
+radius = 0.1
