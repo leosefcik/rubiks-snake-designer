@@ -31,6 +31,7 @@ var center_point_cam: Vector3
 var time_cam = 0.0
 
 var roto45 = false #for Z axis rotation so it dont get twisted
+var lowest_Y_grid = 0.0 # for grid y level
 
 # Settings
 var gui_hidden := false
@@ -127,6 +128,9 @@ var preset_themes = {
 	"Piano": ["Black", "Black", "White", "White"],
 	"Funky": ["Mint Blue", "Mint Blue", "Pink", "Pink"],
 	"IKEA": ["Blue", "Yellow"],
+	"Zebra": ["Black", "Black", "White", "White", "White", "White"],
+	"Jungle Snek": ["Green", "Green", "Mint Blue", "Mint Blue", "Mint Blue", "Mint Blue"],
+	"Desert Snek": ["Orange", "Orange", "Cream", "Cream", "Cream", "Cream"],
 	"thomas-wolter.de": ["Mint Blue", "Mint Blue", "Mint Green", "Mint Green"]
 }
 
@@ -225,7 +229,10 @@ func _process(delta):
 			cam_recenter = false
 	
 	# Grid re-level
-	get_node("%GridPlane").global_translation.y = lerp(get_node("%GridPlane").global_translation.y, findLowestY()-1, Tools.damp(1, delta))
+	var current_y = findLowestY()
+	if current_y < lowest_Y_grid:
+		lowest_Y_grid = current_y
+	get_node("%GridPlane").global_translation.y = lerp(get_node("%GridPlane").global_translation.y, lowest_Y_grid-1, Tools.damp(200, delta))
 
 func findLowestY():
 	var lowest_y := 9999.0
@@ -244,7 +251,7 @@ func generateEmptyDesign(count: int):
 	return(x)
 
 
-func spawnDesign(design: Array, animated: bool = false) -> void:
+func spawnDesign(design: Array, animated: bool = false, orientation: Vector3 = Vector3(0, 0, 0)) -> void:
 	# INFO Reset phase
 	if snake_object: snake_object.queue_free()
 	snake_object = Spatial.new()
@@ -278,6 +285,23 @@ func spawnDesign(design: Array, animated: bool = false) -> void:
 	
 	themeSet()
 	
+	if orientation != Vector3(0, 0, 0):
+		var oronodo = Spatial.new()
+		oronodo.translation = findCenter()
+		snake_object.add_child(oronodo)
+		for i in snake_prisms:
+			var correct_pos = i.global_transform
+			snake_object.remove_child(i)
+			oronodo.add_child(i)
+			i.global_transform = correct_pos
+		oronodo.global_rotation = orientation
+		for i in snake_prisms:
+			var correct_pos = i.global_transform
+			oronodo.remove_child(i)
+			snake_object.add_child(i)
+			i.global_transform = correct_pos
+		oronodo.queue_free()
+	
 	# INFO Snake piece rotation phase
 	if animated:
 		resetCam()
@@ -301,6 +325,14 @@ func spawnDesign(design: Array, animated: bool = false) -> void:
 			elif design[i] == 3:
 				rotateSnake(i, 1, -1)
 		resetCam()
+	
+	lowest_Y_grid = 0.0
+
+func convertToDesign(x: String):
+	var m := []
+	for i in x:
+		m.append(int(i))
+	return m
 
 
 func themeSet():
@@ -413,6 +445,7 @@ func resetCam():
 	center_point_cam = findCenter()
 	CAMERA_ROOT.zoom_level = 16.0 * (snake_length/24.0)
 	cam_recenter = true
+	lowest_Y_grid = 999
 
 
 func findCenter():
@@ -463,9 +496,17 @@ func _on_ExportDesignButton_pressed():
 	var designtext := ""
 	for i in snake_design:
 		designtext += str(i)
+	designtext += "|" + str(getFirstPrismOrientation())
+	getFirstPrismOrientation()
 	get_node("%ExportPopup").popup()
 	get_node("%ExportBox").set_text(designtext)
 
+func getFirstPrismOrientation():
+	var transforms := []
+	transforms.append(round(rad2deg(snake_prisms[0].global_rotation.x)))
+	transforms.append(round(rad2deg(snake_prisms[0].global_rotation.y)))
+	transforms.append(round(rad2deg(snake_prisms[0].global_rotation.z)))
+	return str(transforms[0]) +","+ str(transforms[1]) +","+ str(transforms[2])
 
 func _on_DefaultRotationButton_pressed():
 	if stunlock != 0: return
@@ -474,22 +515,35 @@ func _on_DefaultRotationButton_pressed():
 
 func _on_ImportDesign_pressed():
 	if stunlock != 0: return
-	if len(get_node("%ImportBox").text) > 479:
+	
+	var m = get_node("%ImportBox").text.split("|") #m[0] design, m[1] rotation
+	
+	if len(m[0]) > 479:
 		get_node("%ImportStatus").text = "Too long! Max. 480 pieces"
 		return
-	elif len(get_node("%ImportBox").text) == 0:
+	elif len(m[0]) == 0:
 		get_node("%ImportStatus").text = "Empty import!"
 		return
 	
 	var temp_design := []
-	for i in get_node("%ImportBox").text:
+	for i in m[0]:
 		if i != "0" and i != "1" and i != "2" and i != "3":
 			get_node("%ImportStatus").text = "Wrong format! Must only contain numbers 0-3"
 			return
 		temp_design.append(int(i))
 	
-	if animate_builds: spawnDesign(temp_design, true)
-	else: spawnDesign(temp_design)
+	var orientation: Vector3
+	if len(m) == 2:
+		var m_ori = m[1].split(",")
+		if len(m_ori) == 3:
+			orientation.x = deg2rad(clamp(float(m_ori[0]), -180.0, 180.0))
+			orientation.y = deg2rad(clamp(float(m_ori[1]), -180.0, 180.0))
+			orientation.z = deg2rad(clamp(float(m_ori[2]), -180.0, 180.0))
+		else: orientation = Vector3(0, 0, 0)
+	else: orientation = Vector3(0, 0, 0)
+	
+	if animate_builds: spawnDesign(temp_design, true, orientation)
+	else: spawnDesign(temp_design, false, orientation)
 	get_node("%ImportPopup").hide()
 
 
@@ -668,21 +722,22 @@ func _on_RotoR_pressed():
 
 func rotateEntireSnake(rotating_y, dir):
 	if stunlock != 0: return
-	if roto45 and rotating_y:
-		$WowowAudio.play()
-		return
+	#if roto45 and rotating_y:
+	#	$WowowAudio.play()
+	#	return
 	
 	center_point_rot = findCenter()
 	rotary_node_rot = Spatial.new()
 	rotary_node_rot.translation = center_point_rot
 	
+	snake_object.add_child(rotary_node_rot)
+	
 	if rotating_y:
-		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.y.normalized(), -PI/2*dir)
+		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.y.normalized(), -PI/4*dir)
 	else:
 		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), -PI/4*dir)
 		roto45 = !roto45
 	
-	snake_object.add_child(rotary_node_rot)
 	for i in snake_prisms:
 		var correct_position = i.global_transform
 		snake_object.remove_child(i)

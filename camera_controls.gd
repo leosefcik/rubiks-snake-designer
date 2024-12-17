@@ -40,4 +40,5 @@ func pan(relative: Vector2):
 	global_translate(movement)
 
 func zoom(zoom_amount: float):
-	zoom_level = clamp(zoom_level+zoom_amount, 0.5, 64)
+	if zoom_level > 20: zoom_level = clamp(zoom_level+zoom_amount*4, 0.5, 128)
+	else: zoom_level = clamp(zoom_level+zoom_amount, 0.5, 128)
