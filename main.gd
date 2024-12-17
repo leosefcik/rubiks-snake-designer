@@ -98,6 +98,7 @@ var preset_themes = {
 	"Cream": ["Cream", "White", "White", "Cream"],
 	"Brown": ["Brown", "White", "White", "Brown"],
 	"Black": ["Black", "White", "White", "Black"],
+	"Gray": ["Gray", "White", "White", "Gray"],
 	
 	3: "Solid Colors:",
 	"S White": ["White"],
@@ -201,7 +202,7 @@ func _process(delta):
 		time_rot += delta
 		var a = Quat(rotary_node_rot.transform.basis.get_rotation_quat())
 		var b = Quat(target_rotation_rot.get_rotation_quat())
-		var c = a.slerp(b, Tools.damp(spin_speed, (time_rot/8)*delta))
+		var c = a.slerp(b, Tools.damp(spin_speed/2, (time_rot)*delta))
 		rotary_node_rot.transform.basis = Basis(c)
 		
 		if rotary_node_rot.transform.basis.is_equal_approx(target_rotation_rot):
