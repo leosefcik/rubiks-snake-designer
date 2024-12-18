@@ -736,8 +736,10 @@ func rotateEntireSnake(rotating_y, dir):
 	if rotating_y:
 		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.y.normalized(), -PI/4*dir)
 	else:
+		var cam_roto = (CAMERA_ROOT.rotation.y/PI)+1
 		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), -PI/4*dir)
-		roto45 = !roto45
+		
+		#roto45 = !roto45
 	
 	for i in snake_prisms:
 		var correct_position = i.global_transform
