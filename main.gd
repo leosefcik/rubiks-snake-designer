@@ -42,12 +42,16 @@ var animate_builds := false
 
 # Themes
 var preset_backgrounds = {
-	"Default Dark": Color("10151a"),
-	"Classic Gray": Color("515b58"),
-	"Bright Light": Color("f4f5f6"),
-	"Blueprint Blue": Color("252e74"),
+	#"Default Dark": Color("10151a"),
+	"Default Dark": Color("1C2026"),
+	"Blendy Gray": Color("3F3F3F"),
+	"Ugly Gray": Color("515b58"),
+	"Steamy Blue": Color("1B2838"),
+	"Light": Color("#F0F0F0"),
 	"Green": Color("257444"),
-	"Indigo": Color("432574")
+	"Indigo": Color("432574"),
+	"Blueprint Blue": Color("252e74"),
+	"Midnight": Color("000000"),
 }
 var preset_backgrounds_array = [] # For option control nodes
 var materials = {
@@ -74,31 +78,31 @@ var preset_themes = {
 	"Rubik's Twist": ["Black", "Blue", "Gray", "Red", "Black", "Orange", "Gray", "Yellow", "Black", "White", "Gray", "Green", "Black", "Green", "Gray", "White", "Black", "Yellow", "Gray", "Orange", "Black", "Red", "Gray", "Blue"],
 	"Classic Snake": ["Blue", "Blue", "Green", "Green"],
 	"Toy Snake": ["Blue", "Yellow", "White", "Yellow", "Blue", "Green", "White", "Green", "Blue", "Red", "White", "Red"],
+
+	1: "Rainbows:",
 	"Rainbow Snake": ["Blue", "Blue", "Green", "Green", "Yellow", "Yellow", "Orange", "Orange", "Red", "Red", "Purple", "Purple"],
 	"Rainbow Snake W": ["White", "Blue", "White", "Cyan", "White", "Green", "White", "Yellow", "White", "Orange", "White", "Red", "White", "Purple"],
 	"Rainbow Snake B": ["Black", "Blue", "Black", "Cyan", "Black", "Green", "Black", "Yellow", "Black", "Orange", "Black", "Red", "Black", "Purple"],
 	"Rainbow Mirrored": ["Red", "Red", "Orange", "Orange", "Yellow", "Yellow", "Green", "Green", "Cyan", "Cyan", "Blue", "Blue", "Purple", "Purple", "Blue", "Blue", "Cyan", "Cyan", "Green", "Green", "Yellow", "Yellow", "Orange", "Orange"],
-	
-	1: "Rainbow Alts:",
 	"Rubik's Twist B&W": ["Black", "Blue", "White", "Red", "Black", "Orange", "White", "Yellow", "Black", "Gray", "White", "Green", "Black", "Green", "White", "Gray", "Black", "Yellow", "White", "Orange", "Black", "Red", "White", "Blue"],
 	"Rubik's Twist B": ["Black", "Blue", "Black", "Red", "Black", "Orange", "Black", "Yellow", "Black", "White", "Black", "Green", "Black", "Green", "Black", "White", "Black", "Yellow", "Black", "Orange", "Black", "Red", "Black", "Blue"],
 	"Rubik's Twist W": ["White", "Blue", "White", "Red", "White", "Orange", "White", "Yellow", "White", "Black", "White", "Green", "White", "Green", "White", "Black", "White", "Yellow", "White", "Orange", "White", "Red", "White", "Blue"],
 	
 	2: "Color x White:",
-	"Mint Blue": ["Mint Blue", "White", "White", "Mint Blue"],
-	"Mint Green": ["Mint Green", "White", "White", "Mint Green"],
-	"Blue": ["Blue", "White", "White", "Blue"],
-	"Green": ["Green", "White", "White", "Green"],
-	"Red": ["Red", "White", "White", "Red"],
-	"Orange": ["Orange", "White", "White", "Orange"],
-	"Yellow": ["Yellow", "White", "White", "Yellow"],
-	"Cyan": ["Cyan", "White", "White", "Cyan"],
-	"Purple": ["Purple", "White", "White", "Purple"],
-	"Pink": ["Pink", "White", "White", "Pink"],
-	"Cream": ["Cream", "White", "White", "Cream"],
-	"Brown": ["Brown", "White", "White", "Brown"],
-	"Black": ["Black", "White", "White", "Black"],
-	"Gray": ["Gray", "White", "White", "Gray"],
+	"W Mint Blue": ["Mint Blue", "White", "White", "Mint Blue"],
+	"W Mint Green": ["Mint Green", "White", "White", "Mint Green"],
+	"W Blue": ["Blue", "White", "White", "Blue"],
+	"W Green": ["Green", "White", "White", "Green"],
+	"W Red": ["Red", "White", "White", "Red"],
+	"W Orange": ["Orange", "White", "White", "Orange"],
+	"W Yellow": ["Yellow", "White", "White", "Yellow"],
+	"W Cyan": ["Cyan", "White", "White", "Cyan"],
+	"W Purple": ["Purple", "White", "White", "Purple"],
+	"W Pink": ["Pink", "White", "White", "Pink"],
+	"W Cream": ["Cream", "White", "White", "Cream"],
+	"W Brown": ["Brown", "White", "White", "Brown"],
+	"W Black": ["Black", "White", "White", "Black"],
+	"W Gray": ["Gray", "White", "White", "Gray"],
 	
 	3: "Solid Colors:",
 	"S White": ["White"],
@@ -196,6 +200,7 @@ func _process(delta):
 				moveRotateAnimQueue()
 			else:
 				stunlock = 0
+	
 	
 	# Snake entire rotation
 	elif stunlock == 2:
@@ -662,6 +667,10 @@ func _on_SoundsCheck_toggled(button_pressed):
 	else:
 		AudioServer.set_bus_mute(AudioServer.get_bus_index("Master"), true)
 
+func _on_EnableGridCheck_toggled(button_pressed):
+	$UndoAudio.play()
+	if button_pressed: get_node("%GridPlane").show()
+	else: get_node("%GridPlane").hide()
 
 func _on_ResetDefaultSettingsButton_pressed():
 	$CollisionAudio.play()
@@ -670,6 +679,7 @@ func _on_ResetDefaultSettingsButton_pressed():
 	get_node("%DarkenFirstPieceCheck").pressed = false
 	get_node("%FovSpinBox").value = 45
 	get_node("%SoundsCheck").pressed = true
+	get_node("%EnableGridCheck").pressed = true
 	_on_Sounds2Check_pressed()
 
 
@@ -730,14 +740,21 @@ func rotateEntireSnake(rotating_y, dir):
 	center_point_rot = findCenter()
 	rotary_node_rot = Spatial.new()
 	rotary_node_rot.translation = center_point_rot
-	
 	snake_object.add_child(rotary_node_rot)
 	
 	if rotating_y:
 		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.y.normalized(), -PI/4*dir)
 	else:
-		var cam_roto = (CAMERA_ROOT.rotation.y/PI)+1
-		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), -PI/4*dir)
+		var cam_roto = (CAMERA_ROOT.rotation.y/PI)
+		print(cam_roto)
+		if cam_roto >= -0.25 and cam_roto <= 0.25:
+			target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), -PI/4*dir)
+		elif cam_roto >= -0.75 and cam_roto <= -0.25:
+			target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.x.normalized(), PI/4*dir)
+		elif cam_roto >= 0.25 and cam_roto <= 0.75:
+			target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.x.normalized(), -PI/4*dir)
+		else:
+			target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), PI/4*dir)
 		
 		#roto45 = !roto45
 	
@@ -749,3 +766,5 @@ func rotateEntireSnake(rotating_y, dir):
 	
 	stunlock = 2
 	$UndoAudio.play()
+
+
