@@ -6,6 +6,8 @@ extends Node
 
 # Snake-related
 var prism_scene := preload("res://prism.tscn")
+var prism_mesh := preload("res://models/prism.obj")
+var prism_mesh_dots := preload("res://models/prism_dots.obj")
 var debug_dot := preload("res://debug_dot.tscn")
 var snake_design: Array # Numbers design of the snake
 var snake_prisms: Array # Array with prism nodes
@@ -29,9 +31,12 @@ var CAMERA_ROOT: Spatial
 var cam_recenter := false
 var center_point_cam: Vector3
 var time_cam = 0.0
+var camera_movement_detected := false
 
 var roto45 = false #for Z axis rotation so it dont get twisted
 var lowest_Y_grid = 0.0 # for grid y level
+
+var just_rotated_prism := false # for collision
 
 # Settings
 var gui_hidden := false
@@ -39,6 +44,12 @@ var gui_hidden := false
 var spin_speed := 300
 var instant_rotation := false
 var animate_builds := false
+
+var collision_blink_enabled := true
+var allow_collisions := false
+var blink_material := preload("res://materials/collision_blink_shader.tres")
+var end_stickers_enabled := false
+var dot_meshes_enabled := true
 
 # Themes
 var preset_backgrounds = {
@@ -164,6 +175,8 @@ func _ready() -> void:
 			x.this_theme = i
 			get_node("%PresetThemesVbox").add_child(x)
 			x.connect("themeButtonSelected", self, "themePresetPressed")
+	
+	$AnimationPlayer.play("blink_red_shader")
 
 
 func _input(_event):
@@ -200,6 +213,7 @@ func _process(delta):
 				moveRotateAnimQueue()
 			else:
 				stunlock = 0
+				checkPrismCollisions()
 	
 	
 	# Snake entire rotation
@@ -230,9 +244,10 @@ func _process(delta):
 		CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x = lerp(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x, 0, Tools.damp(50, time_cam*delta))
 		CAMERA_ROOT.global_translation = lerp(CAMERA_ROOT.global_translation, center_point_cam, Tools.damp(50, time_cam*delta))
 		
-		if CAMERA_ROOT.global_translation.is_equal_approx(center_point_cam) and round(CAMERA_ROOT.rotation_degrees.y) == 0 and round(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x) == 0:
+		if (CAMERA_ROOT.global_translation.is_equal_approx(center_point_cam) and round(CAMERA_ROOT.rotation_degrees.y) == 0 and round(CAMERA_ROOT.get_node("CamGimbalX").rotation_degrees.x) == 0) or camera_movement_detected:
 			time_cam = 0.0
 			cam_recenter = false
+			camera_movement_detected = false
 	
 	# Grid re-level
 	var current_y = findLowestY()
@@ -245,6 +260,25 @@ func findLowestY():
 	for i in snake_prisms:
 		if i.global_translation.y < lowest_y: lowest_y = i.global_translation.y
 	return(lowest_y)
+
+func checkPrismCollisions():
+	$CollisionsTimer.start()
+
+func _on_CollisionsTimer_timeout():
+	$CollisionsTimer.stop()
+	var undo_collision := false
+	
+	for i in snake_prisms:
+		var x = i.get_node("CollisionMini").get_overlapping_areas()
+		if x != []:
+			if collision_blink_enabled: i.get_node("PrismMesh").set_material_overlay(blink_material)
+			if !allow_collisions and just_rotated_prism: undo_collision = true
+		else:
+			i.get_node("PrismMesh").set_material_overlay(null)
+	
+	if undo_collision:
+		rotateSnakeUndo()
+	just_rotated_prism = false
 
 func spawnEmptyDesign(count: int):
 	spawnDesign(generateEmptyDesign(count))
@@ -289,6 +323,8 @@ func spawnDesign(design: Array, animated: bool = false, orientation: Vector3 = V
 			piece.transform.basis.z = Vector3(0,0,-1)
 			piece.translation.y = 0.5
 	
+	if end_stickers_enabled: spawnEndStickers()
+	if dot_meshes_enabled: spawnDotMeshes()
 	themeSet()
 	
 	if orientation != Vector3(0, 0, 0):
@@ -333,13 +369,13 @@ func spawnDesign(design: Array, animated: bool = false, orientation: Vector3 = V
 		resetCam()
 	
 	lowest_Y_grid = 0.0
+	just_rotated_prism = false
 
 func convertToDesign(x: String):
 	var m := []
 	for i in x:
 		m.append(int(i))
 	return m
-
 
 func themeSet():
 	var repeat_num = 0
@@ -360,7 +396,7 @@ func moveRotateAnimQueue():
 
 
 func rotateSnakeAction(index: int, side: int, rotate_direction: int):
-	if stunlock != 0:
+	if stunlock != 0 or just_rotated_prism:
 		return
 	
 	if (index == 0 and side == -1) or (index == snake_length-1 and side == 1):
@@ -370,6 +406,7 @@ func rotateSnakeAction(index: int, side: int, rotate_direction: int):
 	if len(actions_history) > 150:
 		actions_history.remove(0)
 	
+	just_rotated_prism = true
 	if instant_rotation: rotateSnake(index, side, rotate_direction)
 	else: rotateSnakeAnim(index, side, rotate_direction)
 	get_node("%UndoButton").show()
@@ -395,12 +432,13 @@ func rotateSnake(index: int, side: int, rotate_direction: int):
 		for i in snake_prisms.slice(index+1, snake_length):
 			rotateAround(i, origin_node.global_translation, origin_node.global_transform.basis.y, PI/2*rotate_direction)
 	
-	if side == -1:
+	elif side == -1:
 		snake_design[index-1] = clamp0and3(snake_design[index-1]+rotate_direction)
 		var origin_node = snake_prisms[index].get_node("OriginL")
 		for i in snake_prisms.slice(0, index-1):
 			rotateAround(i, origin_node.global_translation, origin_node.global_transform.basis.y, PI/2*rotate_direction)
-
+	
+	checkPrismCollisions()
 
 func rotateAround(obj, point, axis, angle):
 	axis = axis.normalized()
@@ -452,6 +490,7 @@ func resetCam():
 	CAMERA_ROOT.zoom_level = 16.0 * (snake_length/24.0)
 	cam_recenter = true
 	lowest_Y_grid = 999
+	camera_movement_detected = false
 
 
 func findCenter():
@@ -502,17 +541,17 @@ func _on_ExportDesignButton_pressed():
 	var designtext := ""
 	for i in snake_design:
 		designtext += str(i)
-	designtext += "|" + str(getFirstPrismOrientation())
-	getFirstPrismOrientation()
+	designtext += "|" + getFirstPrismOrientationInString()
 	get_node("%ExportPopup").popup()
 	get_node("%ExportBox").set_text(designtext)
 
-func getFirstPrismOrientation():
+func getFirstPrismOrientationInString(index: int = 0):
 	var transforms := []
-	transforms.append(round(rad2deg(snake_prisms[0].global_rotation.x)))
-	transforms.append(round(rad2deg(snake_prisms[0].global_rotation.y)))
-	transforms.append(round(rad2deg(snake_prisms[0].global_rotation.z)))
+	transforms.append(round(rad2deg(snake_prisms[index].global_rotation.x)))
+	transforms.append(round(rad2deg(snake_prisms[index].global_rotation.y)))
+	transforms.append(round(rad2deg(snake_prisms[index].global_rotation.z)))
 	return str(transforms[0]) +","+ str(transforms[1]) +","+ str(transforms[2])
+
 
 func _on_DefaultRotationButton_pressed():
 	if stunlock != 0: return
@@ -540,18 +579,22 @@ func _on_ImportDesign_pressed():
 	
 	var orientation: Vector3
 	if len(m) == 2:
-		var m_ori = m[1].split(",")
-		if len(m_ori) == 3:
-			orientation.x = deg2rad(clamp(float(m_ori[0]), -180.0, 180.0))
-			orientation.y = deg2rad(clamp(float(m_ori[1]), -180.0, 180.0))
-			orientation.z = deg2rad(clamp(float(m_ori[2]), -180.0, 180.0))
-		else: orientation = Vector3(0, 0, 0)
+		orientation = convertOrientationStringToVector(m[1])
 	else: orientation = Vector3(0, 0, 0)
 	
 	if animate_builds: spawnDesign(temp_design, true, orientation)
 	else: spawnDesign(temp_design, false, orientation)
 	get_node("%ImportPopup").hide()
 
+func convertOrientationStringToVector(x: String):
+	var orientationvector: Vector3
+	var orientationarray = x.split(",")
+	if len(orientationarray) == 3:
+		orientationvector.x = deg2rad(clamp(float(orientationarray[0]), -180.0, 180.0))
+		orientationvector.y = deg2rad(clamp(float(orientationarray[1]), -180.0, 180.0))
+		orientationvector.z = deg2rad(clamp(float(orientationarray[2]), -180.0, 180.0))
+	else: orientationvector = Vector3(0, 0, 0)
+	return orientationvector
 
 func _on_CopyExportToClipboardButton_pressed():
 	$CollisionAudio.play()
@@ -672,6 +715,18 @@ func _on_EnableGridCheck_toggled(button_pressed):
 	if button_pressed: get_node("%GridPlane").show()
 	else: get_node("%GridPlane").hide()
 
+func _on_CollisionVisualsCheck_toggled(button_pressed):
+	$UndoAudio.play()
+	collision_blink_enabled = button_pressed
+	if !button_pressed:
+		for i in snake_prisms: i.get_node("PrismMesh").set_material_overlay(null)
+	else: checkPrismCollisions()
+
+func _on_AllowCollisionsCheck_toggled(button_pressed):
+	$UndoAudio.play()
+	allow_collisions = button_pressed
+
+
 func _on_ResetDefaultSettingsButton_pressed():
 	$CollisionAudio.play()
 	get_node("%RotationSpeedBox").value = 30
@@ -681,6 +736,8 @@ func _on_ResetDefaultSettingsButton_pressed():
 	get_node("%SoundsCheck").pressed = true
 	get_node("%EnableGridCheck").pressed = true
 	_on_Sounds2Check_pressed()
+	get_node("%AllowCollisionsCheck").pressed = false
+	get_node("%CollisionVisualsCheck").pressed = true
 
 
 func _on_RotationSpeedBox_value_changed(value):
@@ -768,3 +825,45 @@ func rotateEntireSnake(rotating_y, dir):
 	$UndoAudio.play()
 
 
+func _on_cameraMovementDetected():
+	camera_movement_detected = true
+
+"""FINISH SOMEDAY
+func _on_InvertDesignButton_pressed():
+	if stunlock != 0: return
+	var revarray = snake_design.duplicate()
+	revarray.invert()
+	
+	var orientation = getFirstPrismOrientationInString(snake_length-1)
+	var flippedoro = convertOrientationStringToVector(orientation)
+	flippedoro.y += PI
+	print(flippedoro)
+	
+	spawnDesign(revarray, false, flippedoro)"""
+
+func spawnEndStickers():
+	if end_stickers_enabled:
+		snake_prisms[0].get_node("OriginL").get_node("Sprite3D").show()
+		snake_prisms[-1].get_node("OriginR").get_node("Sprite3D").show()
+	else:
+		snake_prisms[0].get_node("OriginL").get_node("Sprite3D").hide()
+		snake_prisms[-1].get_node("OriginR").get_node("Sprite3D").hide()
+
+
+func _on_EndStickersCheck_toggled(button_pressed):
+	end_stickers_enabled = button_pressed
+	spawnEndStickers()
+	$CollisionAudio.play()
+
+func spawnDotMeshes():
+	if dot_meshes_enabled:
+		snake_prisms[0].get_node("PrismMesh").mesh = prism_mesh_dots
+		snake_prisms[-1].get_node("PrismMesh").mesh = prism_mesh_dots
+	else:
+		snake_prisms[0].get_node("PrismMesh").mesh = prism_mesh
+		snake_prisms[-1].get_node("PrismMesh").mesh = prism_mesh
+
+func _on_EndDotsCheck_toggled(button_pressed):
+	dot_meshes_enabled = button_pressed
+	spawnDotMeshes()
+	$CollisionAudio.play()

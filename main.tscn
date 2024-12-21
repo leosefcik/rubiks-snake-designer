@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://main.gd" type="Script" id=1]
 [ext_resource path="res://camera_controls.gd" type="Script" id=2]
@@ -18,6 +18,7 @@
 [ext_resource path="res://icons/times.svg" type="Texture" id=16]
 [ext_resource path="res://sounds/success.wav" type="AudioStream" id=17]
 [ext_resource path="res://test_env.tres" type="Environment" id=18]
+[ext_resource path="res://materials/collision_blink_shader.tres" type="Material" id=19]
 [ext_resource path="res://icons/arrow-curved-left.svg" type="Texture" id=20]
 [ext_resource path="res://icons/rotate-axis-y2.svg" type="Texture" id=21]
 [ext_resource path="res://icons/arrow-curved-right.svg" type="Texture" id=22]
@@ -35,6 +36,37 @@ uv1_scale = Vector3( 1024, 1024, 1 )
 
 [sub_resource type="Theme" id=2]
 default_font = ExtResource( 9 )
+
+[sub_resource type="Animation" id=6]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("BlinkInitializer:material_overlay:shader_param/albedo")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 0, 0, 0.392157 ) ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "blink_red_shader"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("BlinkInitializer:material_overlay:shader_param/albedo")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 0, 0, 0.352941 ), Color( 1, 0, 0, 0.509804 ), Color( 1, 0, 0, 0.352941 ) ]
+}
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
@@ -93,6 +125,14 @@ margin_right = 173.0
 margin_bottom = 40.0
 hint_tooltip = "Export current design"
 text = "Export"
+
+[node name="InvertDesignButton" type="Button" parent="GUI/TopLeft"]
+visible = false
+margin_left = 177.0
+margin_right = 232.0
+margin_bottom = 40.0
+hint_tooltip = "Export current design"
+text = "Invert"
 
 [node name="BottomLeft" type="VBoxContainer" parent="GUI"]
 anchor_top = 1.0
@@ -189,7 +229,7 @@ anchor_bottom = 1.0
 margin_left = -247.0
 margin_top = -43.0
 text = "Rubik's Snake Designer
-v0.4 Beta"
+v0.5 Beta"
 align = 2
 
 [node name="NewDesignPopup" type="Popup" parent="GUI"]
@@ -557,12 +597,12 @@ margin_bottom = 110.0
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer5"]
 margin_top = 10.0
-margin_right = 118.0
+margin_right = 163.0
 margin_bottom = 30.0
-text = "Instant rotation:"
+text = "Instant piece rotation:"
 
 [node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer5"]
-margin_left = 122.0
+margin_left = 167.0
 margin_right = 180.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
@@ -603,12 +643,12 @@ margin_bottom = 198.0
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer8"]
 margin_top = 10.0
-margin_right = 88.0
+margin_right = 126.0
 margin_bottom = 30.0
-text = "Enable grid:"
+text = "Enable floor grid:"
 
 [node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer8"]
-margin_left = 92.0
+margin_left = 130.0
 margin_right = 180.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
@@ -620,17 +660,64 @@ margin_right = 260.0
 margin_bottom = 40.0
 pressed = true
 
-[node name="Label2" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
+[node name="HBoxContainer10" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
 margin_top = 202.0
 margin_right = 260.0
-margin_bottom = 234.0
+margin_bottom = 242.0
+
+[node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer10"]
+margin_top = 10.0
+margin_right = 116.0
+margin_bottom = 30.0
+text = "Allow collisions:"
+
+[node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer10"]
+margin_left = 120.0
+margin_right = 180.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+
+[node name="AllowCollisionsCheck" type="CheckButton" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer10"]
+unique_name_in_owner = true
+margin_left = 184.0
+margin_right = 260.0
+margin_bottom = 40.0
+
+[node name="HBoxContainer9" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
+margin_top = 246.0
+margin_right = 260.0
+margin_bottom = 286.0
+
+[node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer9"]
+margin_top = 10.0
+margin_right = 162.0
+margin_bottom = 30.0
+text = "Red blink on collision:"
+
+[node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer9"]
+margin_left = 166.0
+margin_right = 180.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+
+[node name="CollisionVisualsCheck" type="CheckButton" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer9"]
+unique_name_in_owner = true
+margin_left = 184.0
+margin_right = 260.0
+margin_bottom = 40.0
+pressed = true
+
+[node name="Label2" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
+margin_top = 290.0
+margin_right = 260.0
+margin_bottom = 322.0
 custom_fonts/font = ExtResource( 14 )
 text = "UI"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 238.0
+margin_top = 326.0
 margin_right = 260.0
-margin_bottom = 268.0
+margin_bottom = 356.0
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer2"]
 margin_top = 5.0
@@ -655,9 +742,9 @@ value = 45.0
 rounded = true
 
 [node name="HBoxContainer6" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 272.0
+margin_top = 360.0
 margin_right = 260.0
-margin_bottom = 312.0
+margin_bottom = 400.0
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer6"]
 margin_top = 10.0
@@ -680,15 +767,15 @@ size_flags_horizontal = 3
 pressed = true
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 316.0
+margin_top = 404.0
 margin_right = 260.0
-margin_bottom = 336.0
+margin_bottom = 424.0
 text = "Click sounds:"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 340.0
+margin_top = 428.0
 margin_right = 260.0
-margin_bottom = 368.0
+margin_bottom = 456.0
 
 [node name="Sounds1Check" type="CheckBox" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer3"]
 unique_name_in_owner = true
@@ -715,7 +802,7 @@ size_flags_horizontal = 3
 text = "Deep"
 
 [node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 372.0
+margin_top = 460.0
 margin_right = 260.0
 margin_bottom = 522.0
 size_flags_vertical = 3
@@ -779,7 +866,7 @@ expand_icon = true
 [node name="TabContainer" type="TabContainer" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer"]
 margin_top = 36.0
 margin_right = 260.0
-margin_bottom = 522.0
+margin_bottom = 490.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 tab_align = 0
@@ -807,6 +894,7 @@ margin_right = 252.0
 size_flags_horizontal = 3
 
 [node name="Custom" type="Tabs" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer/TabContainer"]
+visible = false
 margin_right = 40.0
 margin_bottom = 30.0
 
@@ -814,6 +902,35 @@ margin_bottom = 30.0
 margin_right = 40.0
 margin_bottom = 20.0
 text = "Coming Soon!"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer"]
+margin_top = 494.0
+margin_right = 260.0
+margin_bottom = 522.0
+
+[node name="Label" type="Label" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer3"]
+margin_top = 4.0
+margin_right = 92.0
+margin_bottom = 24.0
+text = "End stickers:"
+
+[node name="EndStickersCheck" type="CheckBox" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer3"]
+margin_left = 96.0
+margin_right = 120.0
+margin_bottom = 28.0
+
+[node name="Label2" type="Label" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer3"]
+margin_left = 124.0
+margin_top = 4.0
+margin_right = 192.0
+margin_bottom = 24.0
+text = "End dots:"
+
+[node name="EndDotsCheck" type="CheckBox" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer3"]
+margin_left = 196.0
+margin_right = 220.0
+margin_bottom = 28.0
+pressed = true
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GUI/ThemesPopup/Control/Panel/VBoxContainer"]
 margin_top = 526.0
@@ -932,9 +1049,21 @@ wait_time = 2.0
 [node name="SuccessAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 17 )
 
+[node name="CollisionsTimer" type="Timer" parent="."]
+wait_time = 0.001
+
+[node name="BlinkInitializer" type="MeshInstance" parent="."]
+material_overlay = ExtResource( 19 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/RESET = SubResource( 6 )
+anims/blink_red_shader = SubResource( 7 )
+
+[connection signal="cameraMovementDetected" from="World/CamGimbalY" to="." method="_on_cameraMovementDetected"]
 [connection signal="pressed" from="GUI/TopLeft/NewDesignButton" to="." method="_on_NewDesignButton_pressed"]
 [connection signal="pressed" from="GUI/TopLeft/ImportDesignButton" to="." method="_on_ImportDesignButton_pressed"]
 [connection signal="pressed" from="GUI/TopLeft/ExportDesignButton" to="." method="_on_ExportDesignButton_pressed"]
+[connection signal="pressed" from="GUI/TopLeft/InvertDesignButton" to="." method="_on_InvertDesignButton_pressed"]
 [connection signal="pressed" from="GUI/BottomLeft/HBoxContainer/DefaultRotationButton" to="." method="_on_DefaultRotationButton_pressed"]
 [connection signal="pressed" from="GUI/BottomLeft/HBoxContainer/HideUiButton" to="." method="_on_HideUiButton_pressed"]
 [connection signal="pressed" from="GUI/BottomLeft/BottomLeft/ResetCamButton" to="." method="_on_ResetCamButton_pressed"]
@@ -958,6 +1087,8 @@ stream = ExtResource( 17 )
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer5/InstantRotationCheck" to="." method="_on_InstantRotationCheck_toggled"]
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer7/DarkenFirstPieceCheck" to="." method="_on_DarkenFirstPieceCheck_toggled"]
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer8/EnableGridCheck" to="." method="_on_EnableGridCheck_toggled"]
+[connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer10/AllowCollisionsCheck" to="." method="_on_AllowCollisionsCheck_toggled"]
+[connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer9/CollisionVisualsCheck" to="." method="_on_CollisionVisualsCheck_toggled"]
 [connection signal="value_changed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer2/FovSpinBox" to="." method="_on_FovSpinBox_value_changed"]
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer6/SoundsCheck" to="." method="_on_SoundsCheck_toggled"]
 [connection signal="pressed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer3/Sounds1Check" to="." method="_on_Sounds1Check_pressed"]
@@ -965,6 +1096,8 @@ stream = ExtResource( 17 )
 [connection signal="pressed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer3/Sounds3Check" to="." method="_on_Sounds3Check_pressed"]
 [connection signal="pressed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/ResetDefaultSettingsButton" to="." method="_on_ResetDefaultSettingsButton_pressed"]
 [connection signal="pressed" from="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer/CloseThemesButton" to="." method="_on_CloseThemesButton_pressed"]
+[connection signal="toggled" from="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer3/EndStickersCheck" to="." method="_on_EndStickersCheck_toggled"]
+[connection signal="toggled" from="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer3/EndDotsCheck" to="." method="_on_EndDotsCheck_toggled"]
 [connection signal="item_selected" from="GUI/ThemesPopup/Control/Panel/VBoxContainer/HBoxContainer2/BackgroundOptions" to="." method="_on_OptionButton_item_selected"]
 [connection signal="pressed" from="GUI/VBoxContainer/HBoxContainer/RotoL" to="." method="_on_RotoL_pressed"]
 [connection signal="pressed" from="GUI/VBoxContainer/HBoxContainer/RotoR" to="." method="_on_RotoR_pressed"]
@@ -973,3 +1106,4 @@ stream = ExtResource( 17 )
 [connection signal="timeout" from="UndoTimer" to="." method="_on_UndoTimer_timeout"]
 [connection signal="pressed" from="UnhideUiButton" to="." method="_on_UnhideUiButton_pressed"]
 [connection signal="timeout" from="UnhideUITimer" to="." method="_on_UnhideUITimer_timeout"]
+[connection signal="timeout" from="CollisionsTimer" to="." method="_on_CollisionsTimer_timeout"]

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://prism.gd" type="Script" id=1]
 [ext_resource path="res://models/prism.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://models/half_selection.obj" type="ArrayMesh" id=3]
+[ext_resource path="res://icons/rubiksnakediamond.png" type="Texture" id=4]
 
 [node name="Prism" type="Spatial"]
 script = ExtResource( 1 )
@@ -13,14 +14,33 @@ mesh = ExtResource( 2 )
 [node name="OriginL" type="Position3D" parent="."]
 transform = Transform( 0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, -0.25, 0.25, 0 )
 
+[node name="Sprite3D" type="Sprite3D" parent="OriginL"]
+transform = Transform( -3.27835e-09, 0.075, 4.37114e-08, 0, -3.27835e-09, 1, 0.075, 3.27835e-09, 1.91069e-15, 0, 0.00765008, 6.44853e-10 )
+visible = false
+texture = ExtResource( 4 )
+
 [node name="OriginR" type="Position3D" parent="."]
 transform = Transform( 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, 0.25, 0.25, 0 )
+
+[node name="Sprite3D" type="Sprite3D" parent="OriginR"]
+transform = Transform( -3.27835e-09, -0.075, -4.37114e-08, 0, -3.27835e-09, 1, -0.075, 3.27835e-09, 1.91069e-15, 0, 0.00765008, 6.44853e-10 )
+visible = false
+texture = ExtResource( 4 )
 
 [node name="CollisionL" type="Area" parent="."]
 
 [node name="CollisionPolygon" type="CollisionPolygon" parent="CollisionL"]
 depth = 0.707
 polygon = PoolVector2Array( 0, 0, -0.5, 0, 0, 0.5 )
+
+[node name="CollisionMini" type="Area" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionPolygon" type="CollisionPolygon" parent="CollisionMini"]
+depth = 0.6
+polygon = PoolVector2Array( 0.45, 0.025, -0.45, 0.025, 0, 0.45 )
+margin = 0.001
 
 [node name="CollisionR" type="Area" parent="."]
 

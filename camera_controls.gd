@@ -2,7 +2,7 @@ extends Spatial
 
 var mouse_sensitivity := 0.0075
 var zoom_level := 10.0
-
+signal cameraMovementDetected()
 
 func _ready() -> void:
 	pass
@@ -27,6 +27,7 @@ func _unhandled_input(event):
 		rotate_y(-event.relative.x * mouse_sensitivity)
 		$CamGimbalX.rotate_x(-event.relative.y * mouse_sensitivity)
 		$CamGimbalX.rotation.x = clamp($CamGimbalX.rotation.x, -PI/2, PI/2)
+		emit_signal("cameraMovementDetected")
 
 
 func pan(relative: Vector2):
@@ -38,7 +39,9 @@ func pan(relative: Vector2):
 	movement -= -up * relative.y *  mouse_sensitivity * zoom_level * 0.20
 	
 	global_translate(movement)
+	emit_signal("cameraMovementDetected")
 
 func zoom(zoom_amount: float):
 	if zoom_level > 20: zoom_level = clamp(zoom_level+zoom_amount*4, 0.5, 128)
 	else: zoom_level = clamp(zoom_level+zoom_amount, 0.5, 128)
+	emit_signal("cameraMovementDetected")

@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/prism_dots.obj-684bcb48bd6191e7819ace63cb4cbbd9.mesh"
+
+[deps]
+
+files=[ "res://.import/prism_dots.obj-684bcb48bd6191e7819ace63cb4cbbd9.mesh" ]
+
+source_file="res://models/prism_dots.obj"
+dest_files=[ "res://.import/prism_dots.obj-684bcb48bd6191e7819ace63cb4cbbd9.mesh", "res://.import/prism_dots.obj-684bcb48bd6191e7819ace63cb4cbbd9.mesh" ]
+
+[params]
+
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh_flags=4286
+generate_tangents=true
+vertex_cache_optimization=true
+octahedral_compression=true
