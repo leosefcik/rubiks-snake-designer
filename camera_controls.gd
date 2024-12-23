@@ -3,6 +3,7 @@ extends Spatial
 var mouse_sensitivity := 0.0075
 var zoom_level := 10.0
 signal cameraMovementDetected()
+var block_cam := false
 
 func _ready() -> void:
 	pass
@@ -17,6 +18,11 @@ func _unhandled_input(event):
 		zoom(-0.5)
 	elif Input.is_action_pressed("zoom_out"):
 		zoom(0.5)
+	
+	if Input.is_action_just_released("cam_pan") or Input.is_action_just_released("cam_rotate"):
+		block_cam = false
+	if block_cam:
+		return
 	
 	if ((Input.is_action_pressed("cam_pan") or (Input.is_action_pressed("cam_rotate") and Input.is_action_pressed("cam_pan_modif"))) and event is InputEventMouseMotion):
 		pan(event.relative)

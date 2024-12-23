@@ -30,11 +30,11 @@ var time_rot := 0.0
 var CAMERA_ROOT: Spatial
 var cam_recenter := false
 var center_point_cam: Vector3
-var time_cam = 0.0
+var time_cam := 0.0
 var camera_movement_detected := false
 
-var roto45 = false #for Z axis rotation so it dont get twisted
-var lowest_Y_grid = 0.0 # for grid y level
+var roto45 := false #for Z axis rotation so it dont get twisted
+var lowest_Y_grid := 0.0 # for grid y level
 
 var just_rotated_prism := false # for collision
 
@@ -52,7 +52,7 @@ var end_stickers_enabled := false
 var dot_meshes_enabled := true
 
 # Themes
-var preset_backgrounds = {
+var preset_backgrounds := {
 	#"Default Dark": Color("10151a"),
 	"Default Dark": Color("1C2026"),
 	"Blendy Gray": Color("3F3F3F"),
@@ -64,8 +64,8 @@ var preset_backgrounds = {
 	"Blueprint Blue": Color("252e74"),
 	"Midnight": Color("000000"),
 }
-var preset_backgrounds_array = [] # For option control nodes
-var materials = {
+var preset_backgrounds_array := [] # For option control nodes
+var materials := {
 	"White": load("res://materials/white.material"),
 	"Black": load("res://materials/black.material"),
 	"Gray": load("res://materials/gray.material"),
@@ -82,8 +82,8 @@ var materials = {
 	"Cream": load("res://materials/cream.material"),
 	"Brown": load("res://materials/brown.material"),
 }
-var materials_array = [] # For option control nodes
-var preset_themes = {
+var materials_array := [] # For option control nodes
+var preset_themes := {
 	0: "Main themes:",
 	"Snake Designer Default": ["Mint Blue", "White", "Mint Green", "White"],
 	"Rubik's Twist": ["Black", "Blue", "Gray", "Red", "Black", "Orange", "Gray", "Yellow", "Black", "White", "Gray", "Green", "Black", "Green", "Gray", "White", "Black", "Yellow", "Gray", "Orange", "Black", "Red", "Gray", "Blue"],
@@ -221,7 +221,7 @@ func _process(delta):
 		time_rot += delta
 		var a = Quat(rotary_node_rot.transform.basis.get_rotation_quat())
 		var b = Quat(target_rotation_rot.get_rotation_quat())
-		var c = a.slerp(b, Tools.damp(spin_speed/2, (time_rot)*delta))
+		var c = a.slerp(b, Tools.damp(spin_speed/2.0, (time_rot)*delta))
 		rotary_node_rot.transform.basis = Basis(c)
 		
 		if rotary_node_rot.transform.basis.is_equal_approx(target_rotation_rot):
@@ -315,6 +315,7 @@ func spawnDesign(design: Array, animated: bool = false, orientation: Vector3 = V
 		
 		piece.get_node("SelectionL").set_surface_material(0, load("res://materials/selection.material"))
 		piece.get_node("SelectionR").set_surface_material(0, load("res://materials/selection.material"))
+		piece.get_node("SelectionMini").set_surface_material(0, load("res://materials/selection_dark.material"))
 		
 		piece.translation.x = 0.5*i
 		if i % 2 == 1:
@@ -411,6 +412,7 @@ func rotateSnakeAction(index: int, side: int, rotate_direction: int):
 	else: rotateSnakeAnim(index, side, rotate_direction)
 	get_node("%UndoButton").show()
 	$ClickAudio.play()
+	CAMERA_ROOT.block_cam = true
 
 
 func rotateSnakeUndo():
@@ -573,7 +575,7 @@ func _on_ImportDesign_pressed():
 	var temp_design := []
 	for i in m[0]:
 		if i != "0" and i != "1" and i != "2" and i != "3":
-			get_node("%ImportStatus").text = "Wrong format! Must only contain numbers 0-3"
+			get_node("%ImportStatus").text = "Wrong format!"
 			return
 		temp_design.append(int(i))
 	
@@ -631,6 +633,7 @@ func _on_GenerateRandomButton_pressed():
 	var choices_num := ["0", "1", "2", "3"]
 	for _i in range(23):
 		x += (choices_num[rand_range(0, len(choices_num))])
+	x = x + "|" + str(round(rand_range(-4, 5))*45) + "," + str(round(rand_range(-4, 5))*45) + "," + str(round(rand_range(-4, 5))*45)
 	get_node("%ImportBox").text = x
 
 
@@ -803,7 +806,6 @@ func rotateEntireSnake(rotating_y, dir):
 		target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.y.normalized(), -PI/4*dir)
 	else:
 		var cam_roto = (CAMERA_ROOT.rotation.y/PI)
-		print(cam_roto)
 		if cam_roto >= -0.25 and cam_roto <= 0.25:
 			target_rotation_rot = rotary_node_rot.transform.basis.rotated(rotary_node_rot.global_transform.basis.z.normalized(), -PI/4*dir)
 		elif cam_roto >= -0.75 and cam_roto <= -0.25:
@@ -867,3 +869,13 @@ func _on_EndDotsCheck_toggled(button_pressed):
 	dot_meshes_enabled = button_pressed
 	spawnDotMeshes()
 	$CollisionAudio.play()
+
+
+func takeScreenshot():
+	var img = get_viewport().get_texture().get_data()
+	img.flip_y()
+	img.save_png("C:/Users/leose/Desktop/GODOTKA.png")
+	
+	var texture = ImageTexture.new()
+	texture.create_from_image(img)
+	$Image.set_texture(texture)

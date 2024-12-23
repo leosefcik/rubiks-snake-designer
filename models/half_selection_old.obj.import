@@ -1,0 +1,21 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/half_selection_old.obj-b795f9ef1e93c283311c09a2634d51e5.mesh"
+
+[deps]
+
+files=[ "res://.import/half_selection_old.obj-b795f9ef1e93c283311c09a2634d51e5.mesh" ]
+
+source_file="res://models/half_selection_old.obj"
+dest_files=[ "res://.import/half_selection_old.obj-b795f9ef1e93c283311c09a2634d51e5.mesh", "res://.import/half_selection_old.obj-b795f9ef1e93c283311c09a2634d51e5.mesh" ]
+
+[params]
+
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh_flags=4286
+generate_tangents=true
+vertex_cache_optimization=true
+octahedral_compression=true

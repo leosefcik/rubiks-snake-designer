@@ -18,18 +18,22 @@ func processClick(side: int, button_mask):
 
 func _on_CollisionL_mouse_entered():
 	$SelectionL.show()
+	$SelectionMini.show()
 
 
 func _on_CollisionR_mouse_entered():
 	$SelectionR.show()
+	$SelectionMini.show()
 
 
 func _on_CollisionL_mouse_exited():
 	$SelectionL.hide()
+	$SelectionMini.hide()
 
 
 func _on_CollisionR_mouse_exited():
 	$SelectionR.hide()
+	$SelectionMini.hide()
 
 
 func _on_CollisionL_input_event(_camera, event, _position, _normal, _shape_idx):

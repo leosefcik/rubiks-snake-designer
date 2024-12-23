@@ -418,7 +418,7 @@ margin_bottom = 123.0
 margin_right = 209.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
-text = "Generate Random Design"
+text = "Generate Random Numbers"
 
 [node name="AnimateImportCheck" type="CheckButton" parent="GUI/ImportPopup/Control/Panel/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true

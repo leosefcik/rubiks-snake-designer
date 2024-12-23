@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://prism.gd" type="Script" id=1]
 [ext_resource path="res://models/prism.obj" type="ArrayMesh" id=2]
 [ext_resource path="res://models/half_selection.obj" type="ArrayMesh" id=3]
 [ext_resource path="res://icons/rubiksnakediamond.png" type="Texture" id=4]
+[ext_resource path="res://models/selection_mini.obj" type="ArrayMesh" id=6]
 
 [node name="Prism" type="Spatial"]
 script = ExtResource( 1 )
@@ -56,6 +57,10 @@ mesh = ExtResource( 3 )
 [node name="SelectionR" type="MeshInstance" parent="."]
 visible = false
 mesh = ExtResource( 3 )
+
+[node name="SelectionMini" type="MeshInstance" parent="."]
+visible = false
+mesh = ExtResource( 6 )
 
 [connection signal="input_event" from="CollisionL" to="." method="_on_CollisionL_input_event"]
 [connection signal="mouse_entered" from="CollisionL" to="." method="_on_CollisionL_mouse_entered"]
