@@ -291,7 +291,7 @@ func generateEmptyDesign(count: int):
 	return(x)
 
 
-func spawnDesign(design: Array, animation_mode: int = 0, orientation: Vector3 = Vector3(0, 0, 0), sequence: Array = []) -> void:
+func spawnDesign(design: Array, animated: bool = false, orientation: Vector3 = Vector3(0, 0, 0)) -> void:
 	# INFO Reset phase
 	if snake_object: snake_object.queue_free()
 	snake_object = Spatial.new()
@@ -328,7 +328,6 @@ func spawnDesign(design: Array, animation_mode: int = 0, orientation: Vector3 = 
 	if dot_meshes_enabled: spawnDotMeshes()
 	themeSet()
 	
-	# Orient before building
 	if orientation != Vector3(0, 0, 0):
 		var oronodo = Spatial.new()
 		oronodo.translation = findCenter()
@@ -347,14 +346,19 @@ func spawnDesign(design: Array, animation_mode: int = 0, orientation: Vector3 = 
 		oronodo.queue_free()
 	
 	# INFO Snake piece rotation phase
-	if animation_mode == 1: # 1: From 100010201203 to spins, ugly but cool
+	if animated:
 		resetCam()
-		rotation_queue = generateAnimationFromDesign(design)
+		rotation_queue = []
+		for i in len(design):
+			if design[i] == 1:
+				rotation_queue.append([i, 1, 1])
+			elif design[i] == 2:
+				rotation_queue.append([i, 1, 1])
+				rotation_queue.append([i, 1, 1])
+			elif design[i] == 3:
+				rotation_queue.append([i, 1, -1])
 		moveRotateAnimQueue()
-	elif animation_mode == 2: # 2: From 2R2-3L1 to spins
-		resetCam()
-		moveRotateAnimQueue()
-	else: # 0: Instant rotation
+	else:
 		for i in len(design):
 			if design[i] == 1:
 				rotateSnake(i, 1, 1)
@@ -367,18 +371,6 @@ func spawnDesign(design: Array, animation_mode: int = 0, orientation: Vector3 = 
 	
 	lowest_Y_grid = 0.0
 	just_rotated_prism = false
-
-func generateAnimationFromDesign(design):
-	var generated_queue = []
-	for i in len(design):
-		if design[i] == 1:
-			generated_queue.append([i, 1, 1])
-		elif design[i] == 2:
-			generated_queue.append([i, 1, 1])
-			generated_queue.append([i, 1, 1])
-		elif design[i] == 3:
-			generated_queue.append([i, 1, -1])
-	return(generated_queue)
 
 func convertToDesign(x: String):
 	var m := []
@@ -580,65 +572,21 @@ func _on_ImportDesign_pressed():
 		get_node("%ImportStatus").text = "Empty import!"
 		return
 	
+	var temp_design := []
+	for i in m[0]:
+		if i != "0" and i != "1" and i != "2" and i != "3":
+			get_node("%ImportStatus").text = "Wrong format!"
+			return
+		temp_design.append(int(i))
+	
 	var orientation: Vector3
 	if len(m) == 2:
 		orientation = convertOrientationStringToVector(m[1])
 	else: orientation = Vector3(0, 0, 0)
 	
-	var temp_design := []
-	
-	if checkDesignValidity(m[0]):
-		for i in m[0]:
-			temp_design.append(int(i))
-		if animate_builds: spawnDesign(temp_design, 1, orientation)
-		else: spawnDesign(temp_design, 0, orientation)
-		get_node("%ImportPopup").hide()
-		return
-	
-	elif checkSequenceValidity(m[0]):
-		if animate_builds: spawnDesign(temp_design1, 1, orientation)
-		else: spawnDesign(temp_design, 0, orientation)
-		get_node("%ImportPopup").hide()
-		return
-	
-	else:
-		get_node("%ImportStatus").text = "Wrong format/too long (max 480)! Refer to help"
-		return
-
-func checkDesignValidity(design: String):
-	for i in design:
-		if i != "0" and i != "1" and i != "2" and i != "3":
-			return false
-	if len(design) > 479:
-		return false
-	return true
-	
-func checkSequenceValidity(sequence: String):
-	# Examples of valid: P120-2R1-93L2-5L3
-	var x := sequence.to_upper().split("-")
-	var length := 24
-	if x[0][0] == "P":
-		if int(x[0].right(1)) > 480 or int(x[0].right(1)) < 2: return false
-		length = int(x[0].right(1))
-		x.remove(0)
-	
-	if length % 2 != 0: return false # Workaround for odd sequences cuz im lazy
-	
-	for i in x:
-		if len(i) < 3: return false
-		if !(i[-2] != "R" or i[-2] != "L"): return false
-		if !(i[-1] != "1" or i[-1] != "2" or i[-1] != "3"): return false
-		if i.left(2) == "1" and i[-2] == "L": return false
-		if int(i.left(2)) > length/2: return false
-	
-	return true
-
-func dePieceSequence(sequence: String):
-	var x := sequence.to_upper().split("-")
-	var length := 24
-	if x[0][0] == "P":
-		length = int(x[0].right(1))
-		x.remove(0)
+	if animate_builds: spawnDesign(temp_design, true, orientation)
+	else: spawnDesign(temp_design, false, orientation)
+	get_node("%ImportPopup").hide()
 
 func convertOrientationStringToVector(x: String):
 	var orientationvector: Vector3
