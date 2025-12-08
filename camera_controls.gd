@@ -1,6 +1,6 @@
 extends Spatial
 
-var mouse_sensitivity := 0.0075
+var mouse_sensitivity := 0.006
 var zoom_level := 10.0
 signal cameraMovementDetected()
 var block_cam := false
@@ -41,8 +41,8 @@ func pan(relative: Vector2):
 	var right = cam_basis.x
 	var up = cam_basis.y
 	
-	var movement = -right * relative.x * mouse_sensitivity * zoom_level * 0.20
-	movement -= -up * relative.y *  mouse_sensitivity * zoom_level * 0.20
+	var movement = -right * relative.x * mouse_sensitivity * zoom_level * 0.2
+	movement -= -up * relative.y *  mouse_sensitivity * zoom_level * 0.2
 	
 	global_translate(movement)
 	emit_signal("cameraMovementDetected")

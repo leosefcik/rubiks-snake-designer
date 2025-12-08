@@ -30,7 +30,7 @@ size = Vector2( 1024, 1024 )
 
 [sub_resource type="SpatialMaterial" id=5]
 flags_transparent = true
-albedo_color = Color( 1, 1, 1, 0.392157 )
+albedo_color = Color( 1, 1, 1, 0.196078 )
 albedo_texture = ExtResource( 24 )
 uv1_scale = Vector3( 1024, 1024, 1 )
 
@@ -229,7 +229,7 @@ anchor_bottom = 1.0
 margin_left = -247.0
 margin_top = -43.0
 text = "Rubik's Snake Designer
-v0.5 Beta"
+v0.5.1 Beta"
 align = 2
 
 [node name="NewDesignPopup" type="Popup" parent="GUI"]
@@ -587,7 +587,7 @@ margin_right = 260.0
 margin_bottom = 30.0
 min_value = 1.0
 max_value = 300.0
-value = 30.0
+value = 50.0
 rounded = true
 
 [node name="HBoxContainer5" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
@@ -707,17 +707,41 @@ margin_right = 260.0
 margin_bottom = 40.0
 pressed = true
 
-[node name="Label2" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
+[node name="HBoxContainer11" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
 margin_top = 290.0
 margin_right = 260.0
-margin_bottom = 322.0
+margin_bottom = 330.0
+
+[node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer11"]
+margin_top = 10.0
+margin_right = 172.0
+margin_bottom = 30.0
+text = "LMB/RMB controls cam:"
+
+[node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer11"]
+margin_left = 176.0
+margin_right = 180.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+
+[node name="CameraMouseCheck" type="CheckButton" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer11"]
+unique_name_in_owner = true
+margin_left = 184.0
+margin_right = 260.0
+margin_bottom = 40.0
+pressed = true
+
+[node name="Label2" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
+margin_top = 334.0
+margin_right = 260.0
+margin_bottom = 366.0
 custom_fonts/font = ExtResource( 14 )
 text = "UI"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 326.0
+margin_top = 370.0
 margin_right = 260.0
-margin_bottom = 356.0
+margin_bottom = 400.0
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer2"]
 margin_top = 5.0
@@ -742,9 +766,9 @@ value = 45.0
 rounded = true
 
 [node name="HBoxContainer6" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 360.0
+margin_top = 404.0
 margin_right = 260.0
-margin_bottom = 400.0
+margin_bottom = 444.0
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer6"]
 margin_top = 10.0
@@ -767,15 +791,15 @@ size_flags_horizontal = 3
 pressed = true
 
 [node name="Label" type="Label" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 404.0
+margin_top = 448.0
 margin_right = 260.0
-margin_bottom = 424.0
+margin_bottom = 468.0
 text = "Click sounds:"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 428.0
+margin_top = 472.0
 margin_right = 260.0
-margin_bottom = 456.0
+margin_bottom = 500.0
 
 [node name="Sounds1Check" type="CheckBox" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer3"]
 unique_name_in_owner = true
@@ -802,7 +826,7 @@ size_flags_horizontal = 3
 text = "Deep"
 
 [node name="Control" type="Control" parent="GUI/SettingsPopup/Control/Panel/VBoxContainer"]
-margin_top = 460.0
+margin_top = 504.0
 margin_right = 260.0
 margin_bottom = 522.0
 size_flags_vertical = 3
@@ -1089,6 +1113,7 @@ anims/blink_red_shader = SubResource( 7 )
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer8/EnableGridCheck" to="." method="_on_EnableGridCheck_toggled"]
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer10/AllowCollisionsCheck" to="." method="_on_AllowCollisionsCheck_toggled"]
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer9/CollisionVisualsCheck" to="." method="_on_CollisionVisualsCheck_toggled"]
+[connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer11/CameraMouseCheck" to="." method="_on_CameraMouseCheck_toggled"]
 [connection signal="value_changed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer2/FovSpinBox" to="." method="_on_FovSpinBox_value_changed"]
 [connection signal="toggled" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer6/SoundsCheck" to="." method="_on_SoundsCheck_toggled"]
 [connection signal="pressed" from="GUI/SettingsPopup/Control/Panel/VBoxContainer/HBoxContainer3/Sounds1Check" to="." method="_on_Sounds1Check_pressed"]

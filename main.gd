@@ -41,7 +41,7 @@ var just_rotated_prism := false # for collision
 # Settings
 var gui_hidden := false
 
-var spin_speed := 300
+var spin_speed := 500
 var instant_rotation := false
 var animate_builds := false
 
@@ -50,6 +50,7 @@ var allow_collisions := false
 var blink_material := preload("res://materials/collision_blink_shader.tres")
 var end_stickers_enabled := false
 var dot_meshes_enabled := true
+var block_cam_enabled := true
 
 # Themes
 var preset_backgrounds := {
@@ -150,7 +151,7 @@ var preset_themes := {
 	"thomas-wolter.de": ["Mint Blue", "Mint Blue", "Mint Green", "Mint Green"]
 }
 
-var theme = preset_themes["Rubik's Twist"]
+var theme = preset_themes["Snake Designer Default"]
 
 ##################################################################
 
@@ -412,7 +413,8 @@ func rotateSnakeAction(index: int, side: int, rotate_direction: int):
 	else: rotateSnakeAnim(index, side, rotate_direction)
 	get_node("%UndoButton").show()
 	$ClickAudio.play()
-	CAMERA_ROOT.block_cam = true
+	if block_cam_enabled:
+		CAMERA_ROOT.block_cam = true
 
 
 func rotateSnakeUndo():
@@ -725,6 +727,22 @@ func _on_CollisionVisualsCheck_toggled(button_pressed):
 		for i in snake_prisms: i.get_node("PrismMesh").set_material_overlay(null)
 	else: checkPrismCollisions()
 
+func _on_CameraMouseCheck_toggled(button_pressed):
+	$UndoAudio.play()
+	var lmb := InputEventMouseButton.new()
+	var rmb := InputEventMouseButton.new()
+	lmb.button_index = 1
+	rmb.button_index = 2
+	
+	if button_pressed:
+		InputMap.action_add_event("cam_pan", lmb)
+		InputMap.action_add_event("cam_rotate", rmb)
+		block_cam_enabled = true
+	else:
+		InputMap.action_erase_event("cam_pan", lmb)
+		InputMap.action_erase_event("cam_rotate", rmb)
+		block_cam_enabled = false
+
 func _on_AllowCollisionsCheck_toggled(button_pressed):
 	$UndoAudio.play()
 	allow_collisions = button_pressed
@@ -732,7 +750,7 @@ func _on_AllowCollisionsCheck_toggled(button_pressed):
 
 func _on_ResetDefaultSettingsButton_pressed():
 	$CollisionAudio.play()
-	get_node("%RotationSpeedBox").value = 30
+	get_node("%RotationSpeedBox").value = 50
 	get_node("%InstantRotationCheck").pressed = false
 	get_node("%DarkenFirstPieceCheck").pressed = false
 	get_node("%FovSpinBox").value = 45
@@ -741,6 +759,7 @@ func _on_ResetDefaultSettingsButton_pressed():
 	_on_Sounds2Check_pressed()
 	get_node("%AllowCollisionsCheck").pressed = false
 	get_node("%CollisionVisualsCheck").pressed = true
+	get_node("%CameraMouseCheck").pressed = true
 
 
 func _on_RotationSpeedBox_value_changed(value):
@@ -879,3 +898,6 @@ func takeScreenshot():
 	var texture = ImageTexture.new()
 	texture.create_from_image(img)
 	$Image.set_texture(texture)
+
+
+
