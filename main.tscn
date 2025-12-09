@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://main.gd" type="Script" id=1]
 [ext_resource path="res://camera_controls.gd" type="Script" id=2]
@@ -24,6 +24,7 @@
 [ext_resource path="res://icons/arrow-curved-right.svg" type="Texture" id=22]
 [ext_resource path="res://icons/rotate-axis-y.svg" type="Texture" id=23]
 [ext_resource path="res://materials/grid.png" type="Texture" id=24]
+[ext_resource path="res://icons/bigimage.png" type="Texture" id=25]
 
 [sub_resource type="PlaneMesh" id=4]
 size = Vector2( 1024, 1024 )
@@ -415,14 +416,14 @@ margin_right = 422.0
 margin_bottom = 123.0
 
 [node name="GenerateRandomButton" type="Button" parent="GUI/ImportPopup/Control/Panel/VBoxContainer/HBoxContainer"]
-margin_right = 209.0
+margin_right = 214.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
 text = "Generate Random Numbers"
 
 [node name="AnimateImportCheck" type="CheckButton" parent="GUI/ImportPopup/Control/Panel/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
-margin_left = 213.0
+margin_left = 218.0
 margin_right = 422.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
@@ -1035,6 +1036,52 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource( 23 )
 expand_icon = true
+
+[node name="StartupPopup" type="Popup" parent="GUI"]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -249.0
+margin_top = -204.5
+margin_right = 249.0
+margin_bottom = 204.5
+
+[node name="Control" type="Control" parent="GUI/StartupPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Panel" type="Panel" parent="GUI/StartupPopup/Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/StartupPopup/Control/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="GUI/StartupPopup/Control/Panel/VBoxContainer"]
+margin_right = 482.0
+margin_bottom = 300.0
+size_flags_vertical = 3
+texture = ExtResource( 25 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="GUI/StartupPopup/Control/Panel/VBoxContainer"]
+margin_top = 304.0
+margin_right = 482.0
+margin_bottom = 393.0
+text = "
+Made by leosefcik (2024-2025)
+
+github.com/leosefcik/rubiks-snake-designer"
+align = 1
 
 [node name="ClickAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )

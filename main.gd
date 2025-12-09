@@ -178,6 +178,8 @@ func _ready() -> void:
 			x.connect("themeButtonSelected", self, "themePresetPressed")
 	
 	$AnimationPlayer.play("blink_red_shader")
+	
+	get_node("%StartupPopup").popup()
 
 
 func _input(_event):
