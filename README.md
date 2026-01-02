@@ -30,7 +30,13 @@ Find the online version here: https://leosefcik.itch.io/rubiks-snake-designer
 - **R** - Reset cam to default orientation from the front
     
 - **H** - Hide GUI
-    
+
+## 📷 Screenshots
+![Preview](.production/screenshots/Screenshot_20251208_172016.png)
+![Preview](.production/screenshots/Screenshot_20251208_173914.png)
+![Preview](.production/screenshots/Screenshot_20251208_172303.png)
+![Preview](.production/screenshots/Screenshot_20251208_174836.png)
+![Preview](.production/screenshots/Screenshot_20251208_171156.png)
 
 ## 🦢 A couple of model codes
 
